@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Cancelled - Button Game{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3 text-center">
+        <div class="card border-warning mt-5">
+            <div class="card-body p-5">
+                <div class="mb-4">
+                    <i class="text-warning" style="font-size: 5rem;">⚠️</i>
+                </div>
+                <h2 class="text-warning mb-4">Payment Cancelled</h2>
+                <p class="lead">No charges were made to your account.</p>
+                <p>You can upgrade to premium anytime from your profile.</p>
+                
+                <div class="alert alert-info mt-4">
+                    <h5>Premium Benefits:</h5>
+                    <ul class="text-start">
+                        <li>8 additional exclusive button colors</li>
+                        <li>Premium ⭐ badge</li>
+                        <li>Stand out on the leaderboard</li>
+                        <li>One-time payment of $9.99</li>
+                    </ul>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{% url 'profile' %}" class="btn btn-warning me-2">Try Again</a>
+                    <a href="{% url 'game' %}" class="btn btn-outline-secondary">Continue Playing Free</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

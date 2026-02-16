@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Successful - Button Game{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3 text-center">
+        <div class="card border-success mt-5">
+            <div class="card-body p-5">
+                <div class="mb-4">
+                    <i class="text-success" style="font-size: 5rem;">✅</i>
+                </div>
+                <h2 class="text-success mb-4">Payment Successful!</h2>
+                <p class="lead">Welcome to Premium! 🎉</p>
+                <p>Your account has been upgraded successfully.</p>
+                
+                <div class="alert alert-success mt-4">
+                    <h5>What's included in Premium:</h5>
+                    <ul class="text-start">
+                        <li>Access to 14 button colors (vs 6 free colors)</li>
+                        <li>Premium ⭐ badge on your profile</li>
+                        <li>Stand out on the leaderboard</li>
+                        <li>Support future development!</li>
+                    </ul>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{% url 'game' %}" class="btn btn-success btn-lg me-2">Try Premium Colors Now!</a>
+                    <a href="{% url 'profile' %}" class="btn btn-outline-secondary">View Profile</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

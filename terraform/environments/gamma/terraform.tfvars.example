@@ -1,0 +1,31 @@
+# Gamma (Staging) Environment Configuration
+
+aws_region = "us-east-1"
+
+# Domain Configuration
+domain_name = "yourdomain.com"
+subdomain   = "gamma"  # gamma.yourdomain.com
+
+# Compute Configuration (smaller for staging)
+instance_type = "t3.micro"
+min_instances = 1
+max_instances = 2
+
+# Database Configuration (smaller for staging)
+db_name              = "buttongame"
+db_username          = "buttongame_admin"
+db_password          = "CHANGE_THIS_SECURE_PASSWORD"
+db_instance_class    = "db.t3.micro"
+db_allocated_storage = 20
+
+# Django Configuration
+django_secret_key = "CHANGE_THIS_TO_LONG_RANDOM_STRING"
+allowed_hosts     = "gamma.yourdomain.com"
+
+# Stripe Test Keys (STAGING)
+stripe_public_key     = "pk_test_your_key_here"
+stripe_secret_key     = "sk_test_your_key_here"
+stripe_webhook_secret = "whsec_your_webhook_secret_here"
+
+# SSL
+enable_ssl = true

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Button Game{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2 class="mb-4">Your Profile</h2>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Account Information</h5>
+                <p><strong>Username:</strong> {{ user.username }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Account Status:</strong> 
+                    {% if user_profile.is_premium %}
+                        <span class="badge bg-warning text-dark">Premium ⭐</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Free</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Your Stats</h5>
+                <p><strong>Total Clicks:</strong> {{ click_record.click_count|default:0 }}</p>
+                {% if click_record.last_clicked %}
+                    <p><strong>Last Click:</strong> {{ click_record.last_clicked|date:"F d, Y H:i" }}</p>
+                {% endif %}
+                <a href="{% url 'game' %}" class="btn btn-primary mt-3">Play Game Now!</a>
+            </div>
+        </div>
+        
+        {% if not user_profile.is_premium %}
+        <div class="card mb-4 border-warning premium-card">
+            <div class="card-body">
+                <h5 class="card-title">⭐ Upgrade to Premium</h5>
+                <p class="lead">Unlock exclusive features for just $9.99!</p>
+                <ul class="mb-4">
+                    <li><strong>14 total button colors</strong> (vs 6 free colors)</li>
+                    <li><strong>Premium badge</strong> on your profile and leaderboard</li>
+                    <li><strong>Stand out</strong> from other players</li>
+                    <li><strong>Support development</strong> of new features</li>
+                </ul>
+                <p class="text-muted mb-3">One-time payment • Secure checkout via Stripe</p>
+                <a href="{% url 'create_checkout_session' %}" class="btn btn-warning btn-lg">
+                    🔒 Upgrade to Premium - $9.99
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="card mb-4 border-success">
+            <div class="card-body">
+                <h5 class="card-title">⭐ Premium Member</h5>
+                <p>Thank you for supporting Button Game! You have access to all premium features.</p>
+                <ul>
+                    <li>✅ 14 button colors unlocked</li>
+                    <li>✅ Premium badge active</li>
+                    <li>✅ Exclusive perks</li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

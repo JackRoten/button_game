@@ -1,0 +1,150 @@
+/* Custom styles for Button Game */
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-lg {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+}
+
+/* Custom styling for forms */
+.form-control {
+    border-radius: 5px;
+}
+
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13,110,253,.25);
+}
+
+/* Alert styling */
+.alert {
+    border-radius: 5px;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+}
+
+/* Game Page Styles */
+.game-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+}
+
+.color-button {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 5px solid white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    background-color: #3498db;
+}
+
+.color-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+}
+
+.color-button:active {
+    transform: scale(0.95);
+}
+
+.button-clicked {
+    animation: pulse 0.2s ease-in-out;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+#score-display {
+    font-size: 5rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+#click-message {
+    font-size: 1.1rem;
+    min-height: 30px;
+    transition: all 0.3s ease;
+}
+
+/* Leaderboard Styles */
+.rank-badge {
+    font-size: 0.95rem;
+    padding: 0.4rem 0.6rem;
+    min-width: 60px;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.table tbody tr.table-primary {
+    background-color: rgba(13, 110, 253, 0.1);
+    border-left: 4px solid #0d6efd;
+}
+
+/* Premium Card Styling */
+.premium-card {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+    border: 2px solid #f39c12;
+}
+
+.premium-card .card-body {
+    background: white;
+    border-radius: 5px;
+    margin: -1px;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .color-button {
+        width: 150px;
+        height: 150px;
+        font-size: 1.2rem;
+    }
+    
+    #score-display {
+        font-size: 3rem;
+    }
+    
+    .rank-badge {
+        font-size: 0.85rem;
+        padding: 0.3rem 0.5rem;
+        min-width: 50px;
+    }
+}

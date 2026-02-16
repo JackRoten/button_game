@@ -1,0 +1,29 @@
+# AWS Configuration
+aws_region  = "us-east-1"
+environment = "prod"
+
+# Domain Configuration
+domain_name = "example.com"          # Replace with your domain
+subdomain   = "app"                  # app.example.com
+
+# Instance Configuration
+instance_type = "t3.small"
+min_instances = 1
+max_instances = 4
+
+# Database Configuration
+db_instance_class    = "db.t3.micro"
+db_allocated_storage = 20
+db_username          = "buttongame_admin"
+db_password          = "CHANGE_THIS_SECURE_PASSWORD"
+
+# Django Configuration
+django_secret_key = "CHANGE_THIS_TO_A_LONG_RANDOM_STRING"
+
+# Stripe Configuration (use test keys for staging)
+stripe_public_key    = "pk_live_your_key_here"
+stripe_secret_key    = "sk_live_your_key_here"
+stripe_webhook_secret = "whsec_your_webhook_secret_here"
+
+# SSL Configuration
+enable_ssl = true

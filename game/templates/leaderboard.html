@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}Leaderboard - Button Game{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-10 offset-md-1">
+        <h2 class="text-center mb-4">🏆 Leaderboard</h2>
+        
+        <!-- Global Stats -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Players</h5>
+                        <h2 class="text-primary">{{ total_players }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Clicks</h5>
+                        <h2 class="text-success">{{ total_clicks|default:0 }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <h5 class="card-title">Your Rank</h5>
+                        <h2 class="text-warning">
+                            {% if user.is_authenticated and user_rank %}
+                                #{{ user_rank }}
+                            {% else %}
+                                --
+                            {% endif %}
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Your Stats (if logged in) -->
+        {% if user.is_authenticated and user_click_record %}
+        <div class="card mb-4 border-primary">
+            <div class="card-body">
+                <h5 class="card-title">Your Stats</h5>
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>Username:</strong> {{ user.username }}
+                        {% if user.userprofile.is_premium %}
+                            <span class="badge bg-warning text-dark ms-1">⭐</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Rank:</strong> #{{ user_rank }}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Total Clicks:</strong> {{ user_click_record.click_count }}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Last Played:</strong> {{ user_click_record.last_clicked|date:"M d, H:i" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Top Players Table -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Top 100 Players</h5>
+                
+                {% if top_players %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">Rank</th>
+                                <th>Player</th>
+                                <th style="width: 150px;">Total Clicks</th>
+                                <th style="width: 180px;">Last Played</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for click_record in top_players %}
+                            <tr class="{% if user.is_authenticated and click_record.user == user %}table-primary{% endif %}">
+                                <td class="text-center">
+                                    {% if forloop.counter == 1 %}
+                                        <span class="badge bg-warning text-dark rank-badge">🥇 1st</span>
+                                    {% elif forloop.counter == 2 %}
+                                        <span class="badge bg-secondary rank-badge">🥈 2nd</span>
+                                    {% elif forloop.counter == 3 %}
+                                        <span class="badge bg-info rank-badge">🥉 3rd</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark rank-badge">#{{ forloop.counter }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong>{{ click_record.user.username }}</strong>
+                                    {% if click_record.user.userprofile.is_premium %}
+                                        <span class="badge bg-warning text-dark ms-1">⭐ Premium</span>
+                                    {% endif %}
+                                    {% if user.is_authenticated and click_record.user == user %}
+                                        <span class="badge bg-primary ms-1">You</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong class="text-primary">{{ click_record.click_count|default:0 }}</strong> clicks
+                                </td>
+                                <td class="text-muted">
+                                    {{ click_record.last_clicked|date:"M d, Y H:i" }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <p class="text-muted">No players yet. Be the first to play!</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'game' %}" class="btn btn-primary">Start Playing</a>
+                    {% else %}
+                        <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up to Play</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Call to Action -->
+        {% if not user.is_authenticated %}
+        <div class="card mt-4 border-primary">
+            <div class="card-body text-center">
+                <h5>Want to compete?</h5>
+                <p>Sign up now to start clicking and climb the leaderboard!</p>
+                <a href="{% url 'signup' %}" class="btn btn-primary me-2">Sign Up</a>
+                <a href="{% url 'login' %}" class="btn btn-outline-primary">Login</a>
+            </div>
+        </div>
+        {% else %}
+        <div class="card mt-4 border-success">
+            <div class="card-body text-center">
+                <h5>Ready to improve your rank?</h5>
+                <p>Every click counts! Keep playing to climb the leaderboard.</p>
+                <a href="{% url 'game' %}" class="btn btn-success">Play Now</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

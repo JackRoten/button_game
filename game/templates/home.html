@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Button Game{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2 text-center">
+        <h1 class="display-4 mb-4">Welcome to Button Game!</h1>
+        
+        {% if user.is_authenticated %}
+            <p class="lead">You're logged in as <strong>{{ user.username }}</strong></p>
+            <p>Ready to start clicking? Let's play!</p>
+            <a href="{% url 'game' %}" class="btn btn-primary btn-lg">Play Now!</a>
+            <a href="{% url 'profile' %}" class="btn btn-outline-secondary btn-lg ms-2">View Profile</a>
+        {% else %}
+            <p class="lead">Click the button, earn points, compete with others!</p>
+            <p>Sign up now to start playing.</p>
+            <div class="mt-4">
+                <a href="{% url 'signup' %}" class="btn btn-primary btn-lg me-2">Sign Up</a>
+                <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg">Login</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-md-4 text-center">
+        <h3>🎮 Simple & Fun</h3>
+        <p>Just click the button and watch it change colors!</p>
+    </div>
+    <div class="col-md-4 text-center">
+        <h3>📊 Track Your Score</h3>
+        <p>Every click counts. Compete for the highest score!</p>
+    </div>
+    <div class="col-md-4 text-center">
+        <h3>⭐ Premium Colors</h3>
+        <p>Unlock exclusive button colors with premium access!</p>
+    </div>
+</div>
+{% endblock %}

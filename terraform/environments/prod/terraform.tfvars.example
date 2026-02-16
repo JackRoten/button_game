@@ -1,0 +1,31 @@
+# Production Environment Configuration
+
+aws_region = "us-east-1"
+
+# Domain Configuration
+domain_name = "yourdomain.com"
+subdomain   = "app"  # app.yourdomain.com
+
+# Compute Configuration
+instance_type = "t3.small"
+min_instances = 2  # Production minimum
+max_instances = 6  # Production maximum
+
+# Database Configuration
+db_name              = "buttongame"
+db_username          = "buttongame_admin"
+db_password          = "CHANGE_THIS_SECURE_PASSWORD"
+db_instance_class    = "db.t3.small"
+db_allocated_storage = 20
+
+# Django Configuration
+django_secret_key = "CHANGE_THIS_TO_LONG_RANDOM_STRING"
+allowed_hosts     = "app.yourdomain.com"
+
+# Stripe Live Keys (PRODUCTION)
+stripe_public_key     = "pk_live_your_key_here"
+stripe_secret_key     = "sk_live_your_key_here"
+stripe_webhook_secret = "whsec_your_webhook_secret_here"
+
+# SSL
+enable_ssl = true

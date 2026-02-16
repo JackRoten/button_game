@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}Play Game - Button Game{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <h2 class="text-center mb-4">Color-Changing Button Game</h2>
+        
+        <!-- Score Display -->
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <h3>Your Score</h3>
+                <h1 class="display-1 text-primary" id="score-display">{{ click_record.click_count|default:0 }}</h1>
+                <p class="text-muted">Total Clicks</p>
+            </div>
+        </div>
+        
+        <!-- Game Area -->
+        <div class="card game-card">
+            <div class="card-body text-center p-5">
+                <h4 class="mb-4">Click the Button!</h4>
+                
+                <!-- The Color-Changing Button -->
+                <button id="color-button" class="color-button">
+                    Click Me!
+                </button>
+                
+                <p class="mt-4 text-muted" id="click-message">Click the button to change its color!</p>
+                
+                {% if not user_profile.is_premium %}
+                <div class="alert alert-info mt-4">
+                    <strong>💡 Want more colors?</strong> Upgrade to Premium to unlock exclusive button colors!
+                    <a href="{% url 'profile' %}" class="alert-link">Learn more</a>
+                </div>
+                {% else %}
+                <div class="alert alert-success mt-4">
+                    <strong>⭐ Premium Active!</strong> You have access to all button colors!
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">Account Type</h6>
+                        <p class="card-text">
+                            {% if user_profile.is_premium %}
+                                <span class="badge bg-warning text-dark">Premium ⭐</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Free</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">Last Played</h6>
+                        <p class="card-text">
+                            {% if click_record.last_clicked %}
+                                {{ click_record.last_clicked|date:"M d, Y H:i" }}
+                            {% else %}
+                                Never
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">Leaderboard</h6>
+                        <p class="card-text">
+                            <a href="{% url 'leaderboard' %}" class="btn btn-sm btn-outline-primary">View Rankings</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Free user colors (available to everyone)
+    const freeColors = [
+        '#3498db', // Blue
+        '#e74c3c', // Red
+        '#2ecc71', // Green
+        '#f39c12', // Orange
+        '#9b59b6', // Purple
+        '#1abc9c', // Turquoise
+    ];
+    
+    // Premium colors (only for premium users)
+    const premiumColors = [
+        '#e67e22', // Carrot
+        '#34495e', // Wet Asphalt
+        '#16a085', // Green Sea
+        '#c0392b', // Pomegranate
+        '#8e44ad', // Wisteria
+        '#2980b9', // Belize Hole
+        '#d35400', // Pumpkin
+        '#27ae60', // Nephritis
+    ];
+    
+    // Check if user is premium
+    const isPremium = {{ user_profile.is_premium|yesno:"true,false" }};
+    
+    // Combine colors based on user status
+    const availableColors = isPremium ? [...freeColors, ...premiumColors] : freeColors;
+    
+    let currentColorIndex = 0;
+    let clickCount = {{ click_record.click_count|default:0 }};
+    
+    // Get CSRF token for AJAX requests
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    const csrftoken = getCookie('csrftoken');
+    
+    // Button click handler
+    document.getElementById('color-button').addEventListener('click', function() {
+        const button = this;
+        
+        // Change color immediately for instant feedback
+        currentColorIndex = (currentColorIndex + 1) % availableColors.length;
+        button.style.backgroundColor = availableColors[currentColorIndex];
+        
+        // Add animation effect
+        button.classList.add('button-clicked');
+        setTimeout(() => {
+            button.classList.remove('button-clicked');
+        }, 200);
+        
+        // Send AJAX request to update score on server
+        fetch('{% url "button_click" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json',
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update score display
+                clickCount = data.click_count;
+                document.getElementById('score-display').textContent = clickCount;
+                document.getElementById('click-message').textContent = data.message;
+                
+                // Add celebration effect for milestone clicks
+                if (clickCount % 10 === 0) {
+                    document.getElementById('click-message').textContent = `🎉 ${data.message} Milestone reached!`;
+                }
+            } else {
+                console.error('Error:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+    
+    // Set initial button color
+    document.getElementById('color-button').style.backgroundColor = availableColors[0];
+</script>
+{% endblock %}
