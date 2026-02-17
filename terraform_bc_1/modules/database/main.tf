@@ -63,6 +63,7 @@ resource "aws_secretsmanager_secret" "db_credentials" {
       Name = "${var.project_name}-db-creds-${var.environment}"
     }
   )
+  
 }
 
 resource "aws_secretsmanager_secret_version" "db_credentials" {

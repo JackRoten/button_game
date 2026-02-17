@@ -12,7 +12,7 @@ resource "aws_db_subnet_group" "main" {
 resource "aws_db_instance" "main" {
   identifier     = "${var.project_name}-db-${var.environment}"
   engine         = "postgres"
-  engine_version = "15.4"
+  engine_version = "15"
   
   instance_class    = var.db_instance_class
   allocated_storage = var.db_allocated_storage
@@ -33,7 +33,8 @@ resource "aws_db_instance" "main" {
   skip_final_snapshot       = var.environment == "dev" ? true : false
   final_snapshot_identifier = var.environment == "dev" ? null : "${var.project_name}-final-snapshot-${var.environment}-${formatdate("YYYY-MM-DD-hhmm", timestamp())}"
   
-  deletion_protection = var.environment == "prod" ? true : false
+  # deletion_protection = var.environment == "prod" ? true : false
+  deletion_protection = var.environment == "prod" ? false : false
   
   enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
   
@@ -47,10 +48,11 @@ resource "aws_secretsmanager_secret" "db_credentials" {
   name        = "${var.project_name}-db-credentials-${var.environment}"
   description = "Database credentials for Button Game"
   recovery_window_in_days = 0
-
+  
   tags = {
     Name = "${var.project_name}-db-credentials-${var.environment}"
   }
+  
 }
 
 resource "aws_secretsmanager_secret_version" "db_credentials" {

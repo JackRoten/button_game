@@ -39,7 +39,7 @@ resource "aws_s3_bucket_public_access_block" "eb_versions" {
 resource "aws_elastic_beanstalk_environment" "main" {
   name                = "${var.project_name}-env-${var.environment}"
   application         = aws_elastic_beanstalk_application.main.name
-  solution_stack_name = "64bit Amazon Linux 2023 v4.3.1 running Python 3.11"
+  solution_stack_name = "64bit Amazon Linux 2023 v4.9.3 running Python 3.14"
   tier                = "WebServer"
   
   # VPC Configuration
@@ -254,8 +254,37 @@ resource "aws_elastic_beanstalk_environment" "main" {
   ]
 }
 
-# Note: ALLOWED_HOSTS is initially set to only the custom domain
-# Django settings automatically allow *.elasticbeanstalk.com domains
-# If you want to explicitly add the EB CNAME to ALLOWED_HOSTS, run:
-#   terraform/scripts/update-allowed-hosts.sh <app-name> <env-name> <custom-domain>
-# after the environment is fully created
+# Update ALLOWED_HOSTS after environment is created
+resource "null_resource" "update_allowed_hosts" {
+  # Only run when the environment is first created or when subdomain/domain changes
+  triggers = {
+    eb_environment_id = aws_elastic_beanstalk_environment.main.id
+    subdomain        = var.subdomain
+    domain_name      = var.domain_name
+  }
+  
+  provisioner "local-exec" {
+    command = <<-EOT
+      # Wait for environment to be ready
+      sleep 60
+      
+      # Get the CNAME
+      CNAME=$(aws elasticbeanstalk describe-environments \
+        --application-name ${aws_elastic_beanstalk_application.main.name} \
+        --environment-names ${aws_elastic_beanstalk_environment.main.name} \
+        --query 'Environments[0].CNAME' \
+        --output text)
+      
+      # Update ALLOWED_HOSTS to include both custom domain and EB CNAME
+      aws elasticbeanstalk update-environment \
+        --application-name ${aws_elastic_beanstalk_application.main.name} \
+        --environment-name ${aws_elastic_beanstalk_environment.main.name} \
+        --option-settings \
+          Namespace=aws:elasticbeanstalk:application:environment,OptionName=ALLOWED_HOSTS,Value="${var.subdomain}.${var.domain_name},$CNAME"
+    EOT
+  }
+  
+  depends_on = [
+    aws_elastic_beanstalk_environment.main
+  ]
+}
