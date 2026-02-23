@@ -96,7 +96,7 @@ jobs:
           zip -r ${{ env.DEPLOY_PACKAGE_NAME }} . -x '*.git*' '*__pycache__*' '*.pyc' 'terraform/*' '.github/*' 'venv/*' 'env/*'
       
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: deployment-package
           path: ${{ env.DEPLOY_PACKAGE_NAME }}
