@@ -82,4 +82,5 @@ terraform.rc
 *.zip
 deploy-package-*.zip
 
-outputs.txt
+*outputs.txt
+*.tfplan

@@ -121,11 +121,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test, determine-environment]
     if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Create deployment package
         run: |
           DEPLOY_PKG="deploy-${{ needs.determine-environment.outputs.environment }}-${{ github.sha }}.zip"
@@ -137,13 +137,15 @@ jobs:
             -x '.github/*' \
             -x 'venv/*' \
             -x 'env/*' \
-            -x '*.md' \
+            -x '.env' \
             -x 'STRIPE_SETUP.md' \
-            -x 'DEPLOYMENT.md'
+            -x 'DEPLOYMENT.md' \
+            -x 'MULTI_ENV_DEPLOYMENT.md' \
+            -x 'QUICKSTART.md'
           echo "DEPLOY_PACKAGE=$DEPLOY_PKG" >> $GITHUB_ENV
-      
+
       - name: Upload artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: deployment-package-${{ needs.determine-environment.outputs.environment }}
           path: ${{ env.DEPLOY_PACKAGE }}
