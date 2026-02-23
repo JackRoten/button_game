@@ -39,7 +39,7 @@ resource "aws_s3_bucket_public_access_block" "eb_versions" {
 resource "aws_elastic_beanstalk_environment" "main" {
   name                = "${var.project_name}-env-${var.environment}"
   application         = aws_elastic_beanstalk_application.main.name
-  solution_stack_name = "64bit Amazon Linux 2023 v4.3.1 running Python 3.11"
+  solution_stack_name = "64bit Amazon Linux 2023 v4.9.3 running Python 3.14"
   tier                = "WebServer"
   
   # VPC Configuration

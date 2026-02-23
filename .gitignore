@@ -81,3 +81,5 @@ terraform.rc
 # Deployment
 *.zip
 deploy-package-*.zip
+
+outputs.txt
