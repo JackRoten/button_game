@@ -28,10 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       environment: ${{ steps.set-env.outputs.environment }}
-      eb_app_name: ${{ steps.set-env.outputs.eb_app_name }}
-      eb_env_name: ${{ steps.set-env.outputs.eb_env_name }}
-      s3_bucket: ${{ steps.set-env.outputs.s3_bucket }}
-    
+
     steps:
       - name: Set environment
         id: set-env
@@ -45,19 +42,8 @@ jobs:
           else
             ENVIRONMENT="gamma"  # Default for PRs
           fi
-          
+
           echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
-          
-          # Set environment-specific values
-          if [ "$ENVIRONMENT" == "prod" ]; then
-            echo "eb_app_name=${{ secrets.PROD_EB_APP_NAME }}" >> $GITHUB_OUTPUT
-            echo "eb_env_name=${{ secrets.PROD_EB_ENV_NAME }}" >> $GITHUB_OUTPUT
-            echo "s3_bucket=${{ secrets.PROD_S3_BUCKET }}" >> $GITHUB_OUTPUT
-          else
-            echo "eb_app_name=${{ secrets.GAMMA_EB_APP_NAME }}" >> $GITHUB_OUTPUT
-            echo "eb_env_name=${{ secrets.GAMMA_EB_ENV_NAME }}" >> $GITHUB_OUTPUT
-            echo "s3_bucket=${{ secrets.GAMMA_S3_BUCKET }}" >> $GITHUB_OUTPUT
-          fi
 
   test:
     name: Run Tests
@@ -142,13 +128,12 @@ jobs:
             -x 'DEPLOYMENT.md' \
             -x 'MULTI_ENV_DEPLOYMENT.md' \
             -x 'QUICKSTART.md'
-          echo "DEPLOY_PACKAGE=$DEPLOY_PKG" >> $GITHUB_ENV
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: deployment-package-${{ needs.determine-environment.outputs.environment }}
-          path: ${{ env.DEPLOY_PACKAGE }}
+          name: deployment-package
+          path: deploy-${{ needs.determine-environment.outputs.environment }}-${{ github.sha }}.zip
 
   deploy-gamma:
     name: Deploy to Gamma
@@ -156,51 +141,51 @@ jobs:
     needs: [build, determine-environment]
     if: needs.determine-environment.outputs.environment == 'gamma'
     environment: gamma
-    
+
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v7
         with:
-          name: deployment-package-gamma
-      
+          name: deployment-package
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-      
+
       - name: Upload to S3
         run: |
           DEPLOY_PKG="deploy-gamma-${{ github.sha }}.zip"
-          aws s3 cp $DEPLOY_PKG s3://${{ needs.determine-environment.outputs.s3_bucket }}/$DEPLOY_PKG
-      
+          aws s3 cp $DEPLOY_PKG s3://${{ secrets.GAMMA_S3_BUCKET }}/$DEPLOY_PKG
+
       - name: Create EB Application Version
         run: |
           aws elasticbeanstalk create-application-version \
-            --application-name ${{ needs.determine-environment.outputs.eb_app_name }} \
+            --application-name ${{ secrets.GAMMA_EB_APP_NAME }} \
             --version-label gamma-${{ github.sha }} \
-            --source-bundle S3Bucket="${{ needs.determine-environment.outputs.s3_bucket }}",S3Key="deploy-gamma-${{ github.sha }}.zip" \
+            --source-bundle S3Bucket="${{ secrets.GAMMA_S3_BUCKET }}",S3Key="deploy-gamma-${{ github.sha }}.zip" \
             --description "Gamma deployment - commit ${{ github.sha }}"
-      
+
       - name: Deploy to Gamma
         run: |
           aws elasticbeanstalk update-environment \
-            --application-name ${{ needs.determine-environment.outputs.eb_app_name }} \
-            --environment-name ${{ needs.determine-environment.outputs.eb_env_name }} \
+            --application-name ${{ secrets.GAMMA_EB_APP_NAME }} \
+            --environment-name ${{ secrets.GAMMA_EB_ENV_NAME }} \
             --version-label gamma-${{ github.sha }}
-      
+
       - name: Wait for deployment
         run: |
           aws elasticbeanstalk wait environment-updated \
-            --application-name ${{ needs.determine-environment.outputs.eb_app_name }} \
-            --environment-name ${{ needs.determine-environment.outputs.eb_env_name }}
-      
+            --application-name ${{ secrets.GAMMA_EB_APP_NAME }} \
+            --environment-name ${{ secrets.GAMMA_EB_ENV_NAME }}
+
       - name: Deployment summary
         run: |
           echo "✅ Gamma deployment successful!"
           echo "Version: gamma-${{ github.sha }}"
-          echo "Environment: ${{ needs.determine-environment.outputs.eb_env_name }}"
+          echo "Environment: ${{ secrets.GAMMA_EB_ENV_NAME }}"
 
   deploy-prod:
     name: Deploy to Production
@@ -208,52 +193,52 @@ jobs:
     needs: [build, determine-environment]
     if: needs.determine-environment.outputs.environment == 'prod'
     environment: production
-    
+
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v7
         with:
-          name: deployment-package-prod
-      
+          name: deployment-package
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-      
+
       - name: Upload to S3
         run: |
           DEPLOY_PKG="deploy-prod-${{ github.sha }}.zip"
-          aws s3 cp $DEPLOY_PKG s3://${{ needs.determine-environment.outputs.s3_bucket }}/$DEPLOY_PKG
-      
+          aws s3 cp $DEPLOY_PKG s3://${{ secrets.PROD_S3_BUCKET }}/$DEPLOY_PKG
+
       - name: Create EB Application Version
         run: |
           aws elasticbeanstalk create-application-version \
-            --application-name ${{ needs.determine-environment.outputs.eb_app_name }} \
+            --application-name ${{ secrets.PROD_EB_APP_NAME }} \
             --version-label prod-${{ github.sha }} \
-            --source-bundle S3Bucket="${{ needs.determine-environment.outputs.s3_bucket }}",S3Key="deploy-prod-${{ github.sha }}.zip" \
+            --source-bundle S3Bucket="${{ secrets.PROD_S3_BUCKET }}",S3Key="deploy-prod-${{ github.sha }}.zip" \
             --description "Production deployment - commit ${{ github.sha }}"
-      
+
       - name: Deploy to Production
         run: |
           aws elasticbeanstalk update-environment \
-            --application-name ${{ needs.determine-environment.outputs.eb_app_name }} \
-            --environment-name ${{ needs.determine-environment.outputs.eb_env_name }} \
+            --application-name ${{ secrets.PROD_EB_APP_NAME }} \
+            --environment-name ${{ secrets.PROD_EB_ENV_NAME }} \
             --version-label prod-${{ github.sha }}
-      
+
       - name: Wait for deployment
         run: |
           aws elasticbeanstalk wait environment-updated \
-            --application-name ${{ needs.determine-environment.outputs.eb_app_name }} \
-            --environment-name ${{ needs.determine-environment.outputs.eb_env_name }}
-      
+            --application-name ${{ secrets.PROD_EB_APP_NAME }} \
+            --environment-name ${{ secrets.PROD_EB_ENV_NAME }}
+
       - name: Deployment summary
         run: |
           echo "🎉 Production deployment successful!"
           echo "Version: prod-${{ github.sha }}"
-          echo "Environment: ${{ needs.determine-environment.outputs.eb_env_name }}"
-      
+          echo "Environment: ${{ secrets.PROD_EB_ENV_NAME }}"
+
       - name: Notify deployment
         if: success()
         run: |
