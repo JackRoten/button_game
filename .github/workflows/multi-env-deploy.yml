@@ -157,7 +157,7 @@ jobs:
     
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v7
         with:
           name: deployment-package-gamma
       
@@ -209,7 +209,7 @@ jobs:
     
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v7
         with:
           name: deployment-package-prod
       
